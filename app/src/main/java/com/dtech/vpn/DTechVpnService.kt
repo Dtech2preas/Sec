@@ -9,12 +9,13 @@ import android.net.VpnService
 import android.os.Build
 import android.os.ParcelFileDescriptor
 import androidx.core.app.NotificationCompat
+import engine.Engine
+import engine.Key
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.launch
 import java.io.FileInputStream
-import java.io.FileOutputStream
 import java.nio.ByteBuffer
 
 class DTechVpnService : VpnService() {
@@ -40,11 +41,11 @@ class DTechVpnService : VpnService() {
         }
 
         if (action == ACTION_CONNECT) {
-            val sni = intent.getStringExtra("SNI") ?: ""
-            val host = intent.getStringExtra("HOST") ?: ""
-            val port = intent.getIntExtra("PORT", 443)
-            val user = intent.getStringExtra("USER") ?: ""
-            val pass = intent.getStringExtra("PASS") ?: ""
+            val sni = intent?.getStringExtra("SNI") ?: ""
+            val host = intent?.getStringExtra("HOST") ?: ""
+            val port = intent?.getIntExtra("PORT", 443) ?: 443
+            val user = intent?.getStringExtra("USER") ?: ""
+            val pass = intent?.getStringExtra("PASS") ?: ""
 
             startForeground(1, createNotification("Connecting..."))
             startVpn(sni, host, port, user, pass)
@@ -80,12 +81,7 @@ class DTechVpnService : VpnService() {
             try {
                 sshManager?.connect()
 
-                // If SSH connects successfully (blocking call in this simple manager? No, checking code)
-                // SshManager.connect() in my code is blocking?
-                // Looking at SshManager.kt: it calls session.connect(timeout) which is blocking.
-                // So if we pass that line, we are connected.
-
-                if (sshManager?.localSocksPort != null) { // Assuming connected
+                if (sshManager?.localSocksPort != null) {
                      broadcastLog("SSH Connected. Establishing VPN Interface...")
                      establishVpnInterface()
                      startTun2Socks(sshManager!!.localSocksPort)
@@ -114,42 +110,43 @@ class DTechVpnService : VpnService() {
     }
 
     private fun startTun2Socks(socksPort: Int) {
-        val vpnFd = vpnInterface?.fileDescriptor ?: return
+        val vpnFd = vpnInterface ?: return
         broadcastLog("Starting Tun2Socks handler...")
-        broadcastLog("NOTE: Traffic is intercepted but NOT forwarded. A native tun2socks library is required.")
 
-        // Placeholder for Tun2Socks loop
-        // In a real app, you would pass 'vpnFd' and 'socksPort' to a native library or a robust Java packet handler.
-        // For this task, we will simulate the loop.
+        try {
+            // Using com.ooimi.library:tun2socks which wraps a Go-based tun2socks
+            val key = Key()
+            key.mark = 0
+            key.mtu = 1500
+            // We pass the file descriptor using the fd:// syntax standard for many tun2socks implementations
+            key.device = "fd://${vpnFd.fd}"
+            key.proxy = "socks5://127.0.0.1:$socksPort"
+            key.logLevel = "info"
 
-        val inputStream = FileInputStream(vpnFd)
-        val buffer = ByteBuffer.allocate(32767)
+            Engine.insert(key)
+            Engine.start()
 
-        // A simple loop that reads packets to keep the interface active.
-        // This effectively "blackholes" traffic because we read it and do nothing.
-        // This demonstrates the VPN interface is working (packets are arriving).
-        // To make internet work, you MUST implement packet parsing and forwarding to the SOCKS proxy (localhost:$socksPort).
-        while (isRunning && vpnInterface != null) {
-            try {
-                val length = inputStream.read(buffer.array())
-                if (length > 0) {
-                    // Logic to forward packets would go here.
-                    // Example: tun2socks.input(buffer, length)
-                } else {
-                    Thread.sleep(100)
-                }
-            } catch (e: Exception) {
-                broadcastLog("Tun2Socks loop error: ${e.message}")
-                break
-            }
+            broadcastLog("Tun2Socks started successfully.")
+        } catch (e: Exception) {
+            broadcastLog("Tun2Socks Error: ${e.message}")
+            stopVpn()
         }
     }
 
     private fun stopVpn() {
         isRunning = false
+        try {
+            Engine.stop()
+        } catch (e: Exception) {
+            // Ignore if library not loaded or error
+        }
+
         sshManager?.disconnect()
-        vpnInterface?.close()
+        try {
+            vpnInterface?.close()
+        } catch (e: Exception) {}
         vpnInterface = null
+
         stopForeground(true)
         stopSelf()
         broadcastLog("VPN Service Stopped.")
@@ -179,7 +176,7 @@ class DTechVpnService : VpnService() {
         return NotificationCompat.Builder(this, channelId)
             .setContentTitle("DTech VPN")
             .setContentText(status)
-            .setSmallIcon(R.mipmap.ic_launcher) // Assuming default icon exists
+            .setSmallIcon(R.mipmap.ic_launcher)
             .setContentIntent(pendingIntent)
             .build()
     }
