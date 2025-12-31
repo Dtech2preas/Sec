@@ -1,5 +1,11 @@
 package com.dtech.vpn
 
+import android.content.BroadcastReceiver
+import android.content.Context
+import android.content.Intent
+import android.content.IntentFilter
+import android.net.VpnService
+import android.os.Build
 import android.os.Bundle
 import android.text.method.ScrollingMovementMethod
 import android.widget.Button
@@ -21,8 +27,18 @@ class MainActivity : AppCompatActivity() {
     private lateinit var btnConnect: Button
     private lateinit var tvLogs: TextView
 
-    private var sshManager: SshManager? = null
     private var isConnected = false
+
+    private val logReceiver = object : BroadcastReceiver() {
+        override fun onReceive(context: Context?, intent: Intent?) {
+            if (intent?.action == DTechVpnService.ACTION_LOG) {
+                val message = intent.getStringExtra(DTechVpnService.EXTRA_LOG_MESSAGE)
+                if (message != null) {
+                    log(message)
+                }
+            }
+        }
+    }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -46,6 +62,18 @@ class MainActivity : AppCompatActivity() {
                 connect()
             }
         }
+
+        val filter = IntentFilter(DTechVpnService.ACTION_LOG)
+        if (Build.VERSION.SDK_INT >= 33) {
+            registerReceiver(logReceiver, filter, Context.RECEIVER_NOT_EXPORTED)
+        } else {
+            registerReceiver(logReceiver, filter)
+        }
+    }
+
+    override fun onDestroy() {
+        unregisterReceiver(logReceiver)
+        super.onDestroy()
     }
 
     private fun connect() {
@@ -62,38 +90,58 @@ class MainActivity : AppCompatActivity() {
 
         val port = portStr.toIntOrNull() ?: 443
 
-        log("Starting connection...")
-        btnConnect.isEnabled = false
+        log("Preparing VPN Service...")
 
-        sshManager = SshManager(sni, host, port, user, pass) { message ->
-            log(message)
-        }
-
-        // Run network operation in background
-        CoroutineScope(Dispatchers.IO).launch {
-            sshManager?.connect()
-
-            withContext(Dispatchers.Main) {
-                btnConnect.isEnabled = true
-                // We don't accurately track 'isConnected' state from the manager in this simple demo
-                // but we can toggle the button text if we assume success or failure logic.
-                // For now, let's just leave it as "Connect" / "Disconnect" manual toggle
-                // or update based on log messages if we wanted to be fancy.
-                btnConnect.text = "Disconnect / Retry"
-                isConnected = true
-            }
+        val intent = VpnService.prepare(this)
+        if (intent != null) {
+            startActivityForResult(intent, 0)
+        } else {
+            onActivityResult(0, RESULT_OK, null)
         }
     }
 
-    private fun disconnect() {
-        CoroutineScope(Dispatchers.IO).launch {
-            sshManager?.disconnect()
-            withContext(Dispatchers.Main) {
-                log("Disconnected by user.")
-                btnConnect.text = "Connect"
-                isConnected = false
-            }
+    override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
+        super.onActivityResult(requestCode, resultCode, data)
+        if (requestCode == 0 && resultCode == RESULT_OK) {
+            startVpnService()
         }
+    }
+
+    private fun startVpnService() {
+        val sni = etSniHost.text.toString().trim()
+        val host = etSshHost.text.toString().trim()
+        val portStr = etSshPort.text.toString().trim()
+        val user = etSshUser.text.toString().trim()
+        val pass = etSshPass.text.toString().trim()
+        val port = portStr.toIntOrNull() ?: 443
+
+        val intent = Intent(this, DTechVpnService::class.java).apply {
+            action = DTechVpnService.ACTION_CONNECT
+            putExtra("SNI", sni)
+            putExtra("HOST", host)
+            putExtra("PORT", port)
+            putExtra("USER", user)
+            putExtra("PASS", pass)
+        }
+
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+            startForegroundService(intent)
+        } else {
+            startService(intent)
+        }
+
+        btnConnect.text = "Disconnect"
+        isConnected = true
+    }
+
+    private fun disconnect() {
+        val intent = Intent(this, DTechVpnService::class.java)
+        intent.action = DTechVpnService.ACTION_DISCONNECT
+        startService(intent)
+
+        log("Disconnected request sent.")
+        btnConnect.text = "Connect"
+        isConnected = false
     }
 
     private fun log(message: String) {
