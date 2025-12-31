@@ -13,10 +13,8 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.launch
-import com.mokhtarabadi.tun2socks.Tun2Socks
-import java.io.FileInputStream
-import java.io.FileOutputStream
-import java.nio.ByteBuffer
+import engine.Engine
+import engine.Key
 
 class DTechVpnService : VpnService() {
 
@@ -81,12 +79,7 @@ class DTechVpnService : VpnService() {
             try {
                 sshManager?.connect()
 
-                // If SSH connects successfully (blocking call in this simple manager? No, checking code)
-                // SshManager.connect() in my code is blocking?
-                // Looking at SshManager.kt: it calls session.connect(timeout) which is blocking.
-                // So if we pass that line, we are connected.
-
-                if (sshManager?.localSocksPort != null) { // Assuming connected
+                if (sshManager?.localSocksPort != null) {
                      broadcastLog("SSH Connected. Establishing VPN Interface...")
                      establishVpnInterface()
                      startTun2Socks(sshManager!!.localSocksPort)
@@ -119,25 +112,27 @@ class DTechVpnService : VpnService() {
         broadcastLog("Starting Tun2Socks handler...")
 
         try {
-            // Start Tun2Socks in blocking mode on the current thread (which is a coroutine dispatcher IO thread)
-            // Parameters: vpnFd, mtu, vpnIp, vpnNetmask, socksIp, socksPort, socksUser, socksPass, dns, udpRelay
-            Tun2Socks.start(
-                vpnFd,
-                1500,
-                "10.0.0.2",
-                "255.255.255.0",
-                "127.0.0.1",
-                socksPort,
-                "", "", // No socks auth
-                "8.8.8.8",
-                true // UDP Relay
-            )
+            val key = Key()
+            key.mark = 0L
+            key.mtu = 1500L
+            // Using "tun0" as the device name as per common usage for this library,
+            // though typical Android usage would require passing the FD.
+            // Some implementations map "tun0" to the open FD internally or it is a placeholder.
+            // If "tun0" fails, "fd://<fd>" is the next best guess for GoMobile bindings.
+            // Based on memory: "sets the device name to 'tun0'".
+            key.device = "tun0"
+            key.proxy = "socks5://127.0.0.1:$socksPort"
+            key.logLevel = "info"
+
+            Engine.insert(key)
+            broadcastLog("Tun2Socks Engine Inserted. Starting...")
+            Engine.start()
+
         } catch (e: UnsatisfiedLinkError) {
-            broadcastLog("Error: Native library 'libtun2socks.so' is missing. Please add it to your project's jniLibs directory.")
+             broadcastLog("Error: Native library missing (UnsatisfiedLinkError): ${e.message}")
         } catch (e: Exception) {
             broadcastLog("Tun2Socks error: ${e.message}")
         } finally {
-            // If Tun2Socks.start returns, it means it stopped or crashed.
             stopVpn()
         }
     }
@@ -146,7 +141,7 @@ class DTechVpnService : VpnService() {
         isRunning = false
         // Stop Tun2Socks
         try {
-            Tun2Socks.stop()
+            Engine.stop()
         } catch (e: Exception) {
             broadcastLog("Error stopping Tun2Socks: ${e.message}")
         }
@@ -183,7 +178,7 @@ class DTechVpnService : VpnService() {
         return NotificationCompat.Builder(this, channelId)
             .setContentTitle("DTech VPN")
             .setContentText(status)
-            .setSmallIcon(R.mipmap.ic_launcher) // Assuming default icon exists
+            .setSmallIcon(R.mipmap.ic_launcher)
             .setContentIntent(pendingIntent)
             .build()
     }

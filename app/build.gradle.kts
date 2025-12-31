@@ -42,4 +42,7 @@ dependencies {
 
     // SSH Library
     implementation("com.jcraft:jsch:0.1.55")
+
+    // Tun2Socks
+    implementation("com.ooimi.library:tun2socks:1.0.4")
 }
