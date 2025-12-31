@@ -13,6 +13,7 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.launch
+import com.mokhtarabadi.tun2socks.Tun2Socks
 import java.io.FileInputStream
 import java.io.FileOutputStream
 import java.nio.ByteBuffer
@@ -114,39 +115,42 @@ class DTechVpnService : VpnService() {
     }
 
     private fun startTun2Socks(socksPort: Int) {
-        val vpnFd = vpnInterface?.fileDescriptor ?: return
+        val vpnFd = vpnInterface?.fd ?: return
         broadcastLog("Starting Tun2Socks handler...")
-        broadcastLog("NOTE: Traffic is intercepted but NOT forwarded. A native tun2socks library is required.")
 
-        // Placeholder for Tun2Socks loop
-        // In a real app, you would pass 'vpnFd' and 'socksPort' to a native library or a robust Java packet handler.
-        // For this task, we will simulate the loop.
-
-        val inputStream = FileInputStream(vpnFd)
-        val buffer = ByteBuffer.allocate(32767)
-
-        // A simple loop that reads packets to keep the interface active.
-        // This effectively "blackholes" traffic because we read it and do nothing.
-        // This demonstrates the VPN interface is working (packets are arriving).
-        // To make internet work, you MUST implement packet parsing and forwarding to the SOCKS proxy (localhost:$socksPort).
-        while (isRunning && vpnInterface != null) {
-            try {
-                val length = inputStream.read(buffer.array())
-                if (length > 0) {
-                    // Logic to forward packets would go here.
-                    // Example: tun2socks.input(buffer, length)
-                } else {
-                    Thread.sleep(100)
-                }
-            } catch (e: Exception) {
-                broadcastLog("Tun2Socks loop error: ${e.message}")
-                break
-            }
+        try {
+            // Start Tun2Socks in blocking mode on the current thread (which is a coroutine dispatcher IO thread)
+            // Parameters: vpnFd, mtu, vpnIp, vpnNetmask, socksIp, socksPort, socksUser, socksPass, dns, udpRelay
+            Tun2Socks.start(
+                vpnFd,
+                1500,
+                "10.0.0.2",
+                "255.255.255.0",
+                "127.0.0.1",
+                socksPort,
+                "", "", // No socks auth
+                "8.8.8.8",
+                true // UDP Relay
+            )
+        } catch (e: UnsatisfiedLinkError) {
+            broadcastLog("Error: Native library 'libtun2socks.so' is missing. Please add it to your project's jniLibs directory.")
+        } catch (e: Exception) {
+            broadcastLog("Tun2Socks error: ${e.message}")
+        } finally {
+            // If Tun2Socks.start returns, it means it stopped or crashed.
+            stopVpn()
         }
     }
 
     private fun stopVpn() {
         isRunning = false
+        // Stop Tun2Socks
+        try {
+            Tun2Socks.stop()
+        } catch (e: Exception) {
+            broadcastLog("Error stopping Tun2Socks: ${e.message}")
+        }
+
         sshManager?.disconnect()
         vpnInterface?.close()
         vpnInterface = null
