@@ -14,10 +14,12 @@ class SshManager(
     private val sshPort: Int,
     private val sshUser: String,
     private val sshPass: String,
+    private val protectCallback: ((Socket) -> Unit)? = null,
     private val logCallback: (String) -> Unit
 ) {
 
     private var session: Session? = null
+    val localSocksPort = 10808
 
     fun connect() {
         try {
@@ -37,7 +39,7 @@ class SshManager(
             // SET THE CUSTOM SOCKET FACTORY
             // This is the magic. JSch will ask this factory for a socket.
             // Our factory will give it a TLS socket that spoofed the SNI.
-            session?.setSocketFactory(JSchTlsSocketFactoryAdapter(sniHost))
+            session?.setSocketFactory(JSchTlsSocketFactoryAdapter(sniHost, protectCallback))
 
             logCallback("Connecting to $sshHost:$sshPort via SNI: $sniHost...")
 
@@ -46,7 +48,9 @@ class SshManager(
 
             if (session?.isConnected == true) {
                 logCallback("SUCCESS: SSH Authenticated and Connected!")
-                logCallback("Tunnel is ready (Transport Layer established).")
+                // Enable Dynamic Port Forwarding (SOCKS5)
+                session?.setPortForwardingD(localSocksPort)
+                logCallback("SOCKS5 Proxy started on 127.0.0.1:$localSocksPort")
             }
 
         } catch (e: Exception) {
@@ -66,9 +70,12 @@ class SshManager(
      * JSch requires its own SocketFactory interface to be implemented.
      * We wrap our TlsTunnelSocketFactory logic here.
      */
-    inner class JSchTlsSocketFactoryAdapter(val sni: String) : SocketFactory {
+    inner class JSchTlsSocketFactoryAdapter(
+        val sni: String,
+        protectCallback: ((Socket) -> Unit)?
+    ) : SocketFactory {
 
-        private val internalFactory = TlsTunnelSocketFactory(sni)
+        private val internalFactory = TlsTunnelSocketFactory(sni, protectCallback)
 
         override fun createSocket(host: String?, port: Int): Socket {
             return internalFactory.createSocket(host!!, port)

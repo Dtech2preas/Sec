@@ -16,7 +16,8 @@ import javax.net.ssl.SSLSocketFactory
  * but specifically sets the SNI Hostname to the spoofed host.
  */
 class TlsTunnelSocketFactory(
-    private val sniHost: String
+    private val sniHost: String,
+    private val protectCallback: ((Socket) -> Unit)? = null
 ) : SocketFactory() {
 
     private val sslFactory = SSLSocketFactory.getDefault() as SSLSocketFactory
@@ -27,11 +28,13 @@ class TlsTunnelSocketFactory(
         // if that's how they filter, but usually we connect to OUR server IP,
         // but we tell the ISP "Hey, I want to talk to whatsapp.com" in the handshake.
         val socket = Socket(host, port)
+        protectCallback?.invoke(socket)
         return upgradeToSsl(socket, host, port)
     }
 
     override fun createSocket(host: String, port: Int, localHost: java.net.InetAddress?, localPort: Int): Socket {
         val socket = Socket(host, port, localHost, localPort)
+        protectCallback?.invoke(socket)
         return upgradeToSsl(socket, host, port)
     }
 
