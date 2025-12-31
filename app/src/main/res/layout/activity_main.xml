@@ -16,86 +16,53 @@
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="DTech VPN"
+            android:text="DTech VPN (UDP)"
             android:textSize="24sp"
             android:textStyle="bold"
             android:layout_gravity="center_horizontal"
             android:layout_marginBottom="24dp"/>
 
+        <!-- Host -->
         <com.google.android.material.textfield.TextInputLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:hint="SNI Host (Zero Rated Site)"
+            android:hint="Host (e.g. fr1.udpserv.site)"
             android:layout_marginBottom="16dp">
 
             <com.google.android.material.textfield.TextInputEditText
-                android:id="@+id/etSniHost"
+                android:id="@+id/etHost"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:inputType="textUri"
-                android:text="whatsapp.com"/>
+                android:inputType="textUri"/>
         </com.google.android.material.textfield.TextInputLayout>
 
-        <LinearLayout
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:orientation="horizontal"
-            android:baselineAligned="false"
-            android:layout_marginBottom="16dp">
-
-            <com.google.android.material.textfield.TextInputLayout
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:layout_weight="2"
-                android:hint="SSH Host"
-                android:layout_marginEnd="8dp">
-
-                <com.google.android.material.textfield.TextInputEditText
-                    android:id="@+id/etSshHost"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:inputType="textUri"/>
-            </com.google.android.material.textfield.TextInputLayout>
-
-            <com.google.android.material.textfield.TextInputLayout
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:layout_weight="1"
-                android:hint="Port">
-
-                <com.google.android.material.textfield.TextInputEditText
-                    android:id="@+id/etSshPort"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:inputType="number"
-                    android:text="443"/>
-            </com.google.android.material.textfield.TextInputLayout>
-        </LinearLayout>
-
+        <!-- Port Range -->
         <com.google.android.material.textfield.TextInputLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:hint="SSH Username"
+            android:hint="Port Range (e.g. 1-65535)"
             android:layout_marginBottom="16dp">
 
             <com.google.android.material.textfield.TextInputEditText
-                android:id="@+id/etSshUser"
+                android:id="@+id/etPortRange"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:inputType="textNoSuggestions"/>
+                android:inputType="text"
+                android:text="1-65535"/>
         </com.google.android.material.textfield.TextInputLayout>
 
+        <!-- Auth -->
         <com.google.android.material.textfield.TextInputLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:hint="SSH Password"
+            android:hint="Auth (user:password)"
             android:layout_marginBottom="24dp">
 
             <com.google.android.material.textfield.TextInputEditText
-                android:id="@+id/etSshPass"
+                android:id="@+id/etAuth"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:inputType="textPassword"/>
+                android:inputType="textNoSuggestions"/>
         </com.google.android.material.textfield.TextInputLayout>
 
         <Button
@@ -124,7 +91,7 @@
             android:textSize="12sp"
             android:textColor="@color/black"
             android:scrollbars="vertical"
-            android:text="Ready to connect..."/>
+            android:text="Ready..."/>
 
     </LinearLayout>
 </ScrollView>
