@@ -40,9 +40,6 @@ dependencies {
     implementation("com.google.android.material:material:1.11.0")
     implementation("androidx.constraintlayout:constraintlayout:2.1.4")
 
-    // SSH Library
-    implementation("com.jcraft:jsch:0.1.55")
-
-    // Tun2Socks
-    implementation("com.ooimi.library:tun2socks:1.0.4")
+    // Local Go Library (User must compile this)
+    implementation(files("libs/hysteria.aar"))
 }

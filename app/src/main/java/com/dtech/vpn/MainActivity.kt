@@ -12,18 +12,12 @@ import android.widget.Button
 import android.widget.TextView
 import androidx.appcompat.app.AppCompatActivity
 import com.google.android.material.textfield.TextInputEditText
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.launch
-import kotlinx.coroutines.withContext
 
 class MainActivity : AppCompatActivity() {
 
-    private lateinit var etSniHost: TextInputEditText
-    private lateinit var etSshHost: TextInputEditText
-    private lateinit var etSshPort: TextInputEditText
-    private lateinit var etSshUser: TextInputEditText
-    private lateinit var etSshPass: TextInputEditText
+    private lateinit var etHost: TextInputEditText
+    private lateinit var etPortRange: TextInputEditText
+    private lateinit var etAuth: TextInputEditText
     private lateinit var btnConnect: Button
     private lateinit var tvLogs: TextView
 
@@ -45,11 +39,9 @@ class MainActivity : AppCompatActivity() {
         setContentView(R.layout.activity_main)
 
         // Bind Views
-        etSniHost = findViewById(R.id.etSniHost)
-        etSshHost = findViewById(R.id.etSshHost)
-        etSshPort = findViewById(R.id.etSshPort)
-        etSshUser = findViewById(R.id.etSshUser)
-        etSshPass = findViewById(R.id.etSshPass)
+        etHost = findViewById(R.id.etHost)
+        etPortRange = findViewById(R.id.etPortRange)
+        etAuth = findViewById(R.id.etAuth)
         btnConnect = findViewById(R.id.btnConnect)
         tvLogs = findViewById(R.id.tvLogs)
 
@@ -77,20 +69,16 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun connect() {
-        val sni = etSniHost.text.toString().trim()
-        val host = etSshHost.text.toString().trim()
-        val portStr = etSshPort.text.toString().trim()
-        val user = etSshUser.text.toString().trim()
-        val pass = etSshPass.text.toString().trim()
+        val host = etHost.text.toString().trim()
+        val portRange = etPortRange.text.toString().trim()
+        val auth = etAuth.text.toString().trim()
 
-        if (sni.isEmpty() || host.isEmpty() || portStr.isEmpty() || user.isEmpty() || pass.isEmpty()) {
+        if (host.isEmpty() || portRange.isEmpty() || auth.isEmpty()) {
             log("Please fill all fields.")
             return
         }
 
-        val port = portStr.toIntOrNull() ?: 443
-
-        log("Preparing VPN Service...")
+        log("Preparing UDP VPN...")
 
         val intent = VpnService.prepare(this)
         if (intent != null) {
@@ -108,20 +96,15 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun startVpnService() {
-        val sni = etSniHost.text.toString().trim()
-        val host = etSshHost.text.toString().trim()
-        val portStr = etSshPort.text.toString().trim()
-        val user = etSshUser.text.toString().trim()
-        val pass = etSshPass.text.toString().trim()
-        val port = portStr.toIntOrNull() ?: 443
+        val host = etHost.text.toString().trim()
+        val portRange = etPortRange.text.toString().trim()
+        val auth = etAuth.text.toString().trim()
 
         val intent = Intent(this, DTechVpnService::class.java).apply {
             action = DTechVpnService.ACTION_CONNECT
-            putExtra("SNI", sni)
             putExtra("HOST", host)
-            putExtra("PORT", port)
-            putExtra("USER", user)
-            putExtra("PASS", pass)
+            putExtra("PORT_RANGE", portRange)
+            putExtra("AUTH", auth)
         }
 
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
@@ -150,7 +133,6 @@ class MainActivity : AppCompatActivity() {
             val newText = "$currentText\n$message"
             tvLogs.text = newText
 
-            // Auto scroll to bottom
             val scrollAmount = tvLogs.layout.getLineTop(tvLogs.lineCount) - tvLogs.height
             if (scrollAmount > 0)
                 tvLogs.scrollTo(0, scrollAmount)
