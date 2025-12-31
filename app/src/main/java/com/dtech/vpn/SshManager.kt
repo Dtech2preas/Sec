@@ -37,7 +37,7 @@ class SshManager(
             // SET THE CUSTOM SOCKET FACTORY
             // This is the magic. JSch will ask this factory for a socket.
             // Our factory will give it a TLS socket that spoofed the SNI.
-            session?.socketFactory = JSchTlsSocketFactoryAdapter(sniHost)
+            session?.setSocketFactory(JSchTlsSocketFactoryAdapter(sniHost))
 
             logCallback("Connecting to $sshHost:$sshPort via SNI: $sniHost...")
 
