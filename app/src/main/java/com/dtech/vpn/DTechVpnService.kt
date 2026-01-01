@@ -14,7 +14,7 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.launch
 import java.io.File
-// import hysteria.Hysteria // This will be available after the user compiles the AAR
+import hysteria.Hysteria
 
 class DTechVpnService : VpnService() {
 
@@ -93,11 +93,7 @@ class DTechVpnService : VpnService() {
 
                 broadcastLog("Calling Hysteria Native Core...")
 
-                // UNCOMMENT THIS WHEN AAR IS ADDED:
-                // hysteria.Hysteria.start(fd, serverStr, auth, "")
-
-                // Mocking success for now so the app doesn't crash if they try to run it without the lib
-                 broadcastLog("Note: Hysteria AAR missing. Install it to connect.")
+                Hysteria.start(fd, serverStr, auth, "")
 
             } catch (e: Exception) {
                 broadcastLog("Error: ${e.message}")
@@ -127,7 +123,7 @@ class DTechVpnService : VpnService() {
 
         // Stop Hysteria
         try {
-            // hysteria.Hysteria.stop()
+            Hysteria.stop()
         } catch (e: Exception) {}
 
         vpnInterface?.close()
