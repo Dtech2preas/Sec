@@ -1,0 +1,253 @@
+# github.com/Dreamacro/go-shadowsocks2 v0.1.8
+## explicit; go 1.17
+github.com/Dreamacro/go-shadowsocks2/core
+github.com/Dreamacro/go-shadowsocks2/shadowaead
+github.com/Dreamacro/go-shadowsocks2/shadowstream
+# github.com/ajg/form v1.5.1
+## explicit
+github.com/ajg/form
+# github.com/apernet/hysteria/core/v2 v2.6.5
+## explicit; go 1.23
+github.com/apernet/hysteria/core/v2/client
+github.com/apernet/hysteria/core/v2/errors
+github.com/apernet/hysteria/core/v2/internal/congestion
+github.com/apernet/hysteria/core/v2/internal/congestion/bbr
+github.com/apernet/hysteria/core/v2/internal/congestion/brutal
+github.com/apernet/hysteria/core/v2/internal/congestion/common
+github.com/apernet/hysteria/core/v2/internal/frag
+github.com/apernet/hysteria/core/v2/internal/pmtud
+github.com/apernet/hysteria/core/v2/internal/protocol
+github.com/apernet/hysteria/core/v2/internal/utils
+# github.com/apernet/quic-go v0.54.1-0.20251024023933-5e0818a71079
+## explicit; go 1.23
+github.com/apernet/quic-go
+github.com/apernet/quic-go/congestion
+github.com/apernet/quic-go/http3
+github.com/apernet/quic-go/internal/ackhandler
+github.com/apernet/quic-go/internal/congestion
+github.com/apernet/quic-go/internal/flowcontrol
+github.com/apernet/quic-go/internal/handshake
+github.com/apernet/quic-go/internal/protocol
+github.com/apernet/quic-go/internal/qerr
+github.com/apernet/quic-go/internal/utils
+github.com/apernet/quic-go/internal/utils/linkedlist
+github.com/apernet/quic-go/internal/utils/ringbuffer
+github.com/apernet/quic-go/internal/utils/tree
+github.com/apernet/quic-go/internal/wire
+github.com/apernet/quic-go/logging
+github.com/apernet/quic-go/quicvarint
+# github.com/davecgh/go-spew v1.1.1
+## explicit
+github.com/davecgh/go-spew/spew
+# github.com/docker/go-units v0.5.0
+## explicit
+github.com/docker/go-units
+# github.com/go-chi/chi/v5 v5.0.8
+## explicit; go 1.14
+github.com/go-chi/chi/v5
+# github.com/go-chi/cors v1.2.1
+## explicit; go 1.14
+github.com/go-chi/cors
+# github.com/go-chi/render v1.0.2
+## explicit; go 1.16
+github.com/go-chi/render
+# github.com/google/btree v1.1.2
+## explicit; go 1.18
+github.com/google/btree
+# github.com/google/uuid v1.3.0
+## explicit
+github.com/google/uuid
+# github.com/gorilla/websocket v1.5.0
+## explicit; go 1.12
+github.com/gorilla/websocket
+# github.com/pmezard/go-difflib v1.0.0
+## explicit
+github.com/pmezard/go-difflib/difflib
+# github.com/quic-go/qpack v0.5.1
+## explicit; go 1.22
+github.com/quic-go/qpack
+# github.com/sirupsen/logrus v1.9.3
+## explicit; go 1.13
+github.com/sirupsen/logrus
+# github.com/stretchr/objx v0.5.2
+## explicit; go 1.20
+github.com/stretchr/objx
+# github.com/stretchr/testify v1.9.0
+## explicit; go 1.17
+github.com/stretchr/testify/assert
+github.com/stretchr/testify/mock
+# github.com/xjasonlyu/tun2socks/v2 v2.5.2
+## explicit; go 1.20
+github.com/xjasonlyu/tun2socks/v2/common/observable
+github.com/xjasonlyu/tun2socks/v2/common/pool
+github.com/xjasonlyu/tun2socks/v2/core
+github.com/xjasonlyu/tun2socks/v2/core/adapter
+github.com/xjasonlyu/tun2socks/v2/core/device
+github.com/xjasonlyu/tun2socks/v2/core/device/fdbased
+github.com/xjasonlyu/tun2socks/v2/core/device/iobased
+github.com/xjasonlyu/tun2socks/v2/core/device/tun
+github.com/xjasonlyu/tun2socks/v2/core/option
+github.com/xjasonlyu/tun2socks/v2/dialer
+github.com/xjasonlyu/tun2socks/v2/engine
+github.com/xjasonlyu/tun2socks/v2/engine/mirror
+github.com/xjasonlyu/tun2socks/v2/internal/version
+github.com/xjasonlyu/tun2socks/v2/log
+github.com/xjasonlyu/tun2socks/v2/metadata
+github.com/xjasonlyu/tun2socks/v2/proxy
+github.com/xjasonlyu/tun2socks/v2/proxy/proto
+github.com/xjasonlyu/tun2socks/v2/restapi
+github.com/xjasonlyu/tun2socks/v2/transport/simple-obfs
+github.com/xjasonlyu/tun2socks/v2/transport/socks4
+github.com/xjasonlyu/tun2socks/v2/transport/socks5
+github.com/xjasonlyu/tun2socks/v2/tunnel
+github.com/xjasonlyu/tun2socks/v2/tunnel/statistic
+# go.uber.org/atomic v1.11.0
+## explicit; go 1.18
+go.uber.org/atomic
+# go.uber.org/mock v0.5.0
+## explicit; go 1.22
+go.uber.org/mock/mockgen
+go.uber.org/mock/mockgen/model
+# golang.org/x/crypto v0.46.0
+## explicit; go 1.24.0
+golang.org/x/crypto/chacha20
+golang.org/x/crypto/chacha20poly1305
+golang.org/x/crypto/hkdf
+golang.org/x/crypto/internal/alias
+golang.org/x/crypto/internal/poly1305
+# golang.org/x/exp v0.0.0-20240506185415-9bf2ced13842
+## explicit; go 1.20
+golang.org/x/exp/constraints
+# golang.org/x/mobile v0.0.0-20251209145715-2553ed8ce294
+## explicit; go 1.24.0
+golang.org/x/mobile/bind
+golang.org/x/mobile/bind/seq
+golang.org/x/mobile/internal/importers
+golang.org/x/mobile/internal/importers/java
+golang.org/x/mobile/internal/importers/objc
+golang.org/x/mobile/internal/mobileinit
+# golang.org/x/mod v0.31.0
+## explicit; go 1.24.0
+golang.org/x/mod/internal/lazyregexp
+golang.org/x/mod/modfile
+golang.org/x/mod/module
+golang.org/x/mod/semver
+# golang.org/x/net v0.48.0
+## explicit; go 1.24.0
+golang.org/x/net/bpf
+golang.org/x/net/http/httpguts
+golang.org/x/net/http2/hpack
+golang.org/x/net/idna
+golang.org/x/net/internal/iana
+golang.org/x/net/internal/socket
+golang.org/x/net/ipv4
+golang.org/x/net/ipv6
+# golang.org/x/sync v0.19.0
+## explicit; go 1.24.0
+golang.org/x/sync/errgroup
+# golang.org/x/sys v0.39.0
+## explicit; go 1.24.0
+golang.org/x/sys/cpu
+golang.org/x/sys/unix
+golang.org/x/sys/windows
+# golang.org/x/text v0.32.0
+## explicit; go 1.24.0
+golang.org/x/text/secure/bidirule
+golang.org/x/text/transform
+golang.org/x/text/unicode/bidi
+golang.org/x/text/unicode/norm
+# golang.org/x/time v0.5.0
+## explicit; go 1.18
+golang.org/x/time/rate
+# golang.org/x/tools v0.40.0
+## explicit; go 1.24.0
+golang.org/x/tools/go/ast/astutil
+golang.org/x/tools/go/ast/edge
+golang.org/x/tools/go/ast/inspector
+golang.org/x/tools/go/gcexportdata
+golang.org/x/tools/go/packages
+golang.org/x/tools/go/types/objectpath
+golang.org/x/tools/go/types/typeutil
+golang.org/x/tools/imports
+golang.org/x/tools/internal/aliases
+golang.org/x/tools/internal/event
+golang.org/x/tools/internal/event/core
+golang.org/x/tools/internal/event/keys
+golang.org/x/tools/internal/event/label
+golang.org/x/tools/internal/gcimporter
+golang.org/x/tools/internal/gocommand
+golang.org/x/tools/internal/gopathwalk
+golang.org/x/tools/internal/imports
+golang.org/x/tools/internal/modindex
+golang.org/x/tools/internal/packagesinternal
+golang.org/x/tools/internal/pkgbits
+golang.org/x/tools/internal/stdlib
+golang.org/x/tools/internal/typeparams
+golang.org/x/tools/internal/typesinternal
+golang.org/x/tools/internal/versions
+# golang.zx2c4.com/wintun v0.0.0-20230126152724-0fa3db229ce2
+## explicit; go 1.17
+golang.zx2c4.com/wintun
+# golang.zx2c4.com/wireguard v0.0.0-20230325221338-052af4a8072b
+## explicit; go 1.20
+golang.zx2c4.com/wireguard/conn
+golang.zx2c4.com/wireguard/conn/winrio
+golang.zx2c4.com/wireguard/rwcancel
+golang.zx2c4.com/wireguard/tun
+# gopkg.in/yaml.v3 v3.0.1
+## explicit
+gopkg.in/yaml.v3
+# gvisor.dev/gvisor v0.0.0-20230603040744-5c9219dedd33
+## explicit; go 1.20
+gvisor.dev/gvisor/pkg/abi/linux/errno
+gvisor.dev/gvisor/pkg/atomicbitops
+gvisor.dev/gvisor/pkg/bits
+gvisor.dev/gvisor/pkg/buffer
+gvisor.dev/gvisor/pkg/context
+gvisor.dev/gvisor/pkg/cpuid
+gvisor.dev/gvisor/pkg/errors
+gvisor.dev/gvisor/pkg/errors/linuxerr
+gvisor.dev/gvisor/pkg/gohacks
+gvisor.dev/gvisor/pkg/goid
+gvisor.dev/gvisor/pkg/linewriter
+gvisor.dev/gvisor/pkg/log
+gvisor.dev/gvisor/pkg/rand
+gvisor.dev/gvisor/pkg/refs
+gvisor.dev/gvisor/pkg/sleep
+gvisor.dev/gvisor/pkg/state
+gvisor.dev/gvisor/pkg/state/wire
+gvisor.dev/gvisor/pkg/sync
+gvisor.dev/gvisor/pkg/sync/locking
+gvisor.dev/gvisor/pkg/tcpip
+gvisor.dev/gvisor/pkg/tcpip/adapters/gonet
+gvisor.dev/gvisor/pkg/tcpip/checksum
+gvisor.dev/gvisor/pkg/tcpip/hash/jenkins
+gvisor.dev/gvisor/pkg/tcpip/header
+gvisor.dev/gvisor/pkg/tcpip/header/parse
+gvisor.dev/gvisor/pkg/tcpip/internal/tcp
+gvisor.dev/gvisor/pkg/tcpip/link/channel
+gvisor.dev/gvisor/pkg/tcpip/link/fdbased
+gvisor.dev/gvisor/pkg/tcpip/link/nested
+gvisor.dev/gvisor/pkg/tcpip/link/packetsocket
+gvisor.dev/gvisor/pkg/tcpip/link/rawfile
+gvisor.dev/gvisor/pkg/tcpip/link/stopfd
+gvisor.dev/gvisor/pkg/tcpip/link/tun
+gvisor.dev/gvisor/pkg/tcpip/network/hash
+gvisor.dev/gvisor/pkg/tcpip/network/internal/fragmentation
+gvisor.dev/gvisor/pkg/tcpip/network/internal/ip
+gvisor.dev/gvisor/pkg/tcpip/network/internal/multicast
+gvisor.dev/gvisor/pkg/tcpip/network/ipv4
+gvisor.dev/gvisor/pkg/tcpip/network/ipv6
+gvisor.dev/gvisor/pkg/tcpip/ports
+gvisor.dev/gvisor/pkg/tcpip/seqnum
+gvisor.dev/gvisor/pkg/tcpip/stack
+gvisor.dev/gvisor/pkg/tcpip/transport
+gvisor.dev/gvisor/pkg/tcpip/transport/icmp
+gvisor.dev/gvisor/pkg/tcpip/transport/internal/network
+gvisor.dev/gvisor/pkg/tcpip/transport/internal/noop
+gvisor.dev/gvisor/pkg/tcpip/transport/packet
+gvisor.dev/gvisor/pkg/tcpip/transport/raw
+gvisor.dev/gvisor/pkg/tcpip/transport/tcp
+gvisor.dev/gvisor/pkg/tcpip/transport/tcpconntrack
+gvisor.dev/gvisor/pkg/tcpip/transport/udp
+gvisor.dev/gvisor/pkg/waiter

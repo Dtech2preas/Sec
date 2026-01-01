@@ -10,3 +10,6 @@ local.properties
 .idea
 *.iml
 *.DS_Store
+
+# Go
+app/src/main/go/vendor/
