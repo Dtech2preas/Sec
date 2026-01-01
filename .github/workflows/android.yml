@@ -54,6 +54,12 @@ jobs:
         # 4. Vendor the dependencies so we can modify them
         go mod vendor
 
+        # 4.5. Fix Gomobile missing Java files in vendor
+        # go mod vendor excludes non-Go files, but gomobile bind needs them.
+        MOBILE_DIR=$(go list -m -f '{{.Dir}}' golang.org/x/mobile)
+        mkdir -p vendor/golang.org/x/mobile/bind
+        cp -r "$MOBILE_DIR/bind/java" vendor/golang.org/x/mobile/bind/
+
         # 5. CRITICAL FIX: Delete the conflicting test file from gVisor
         # This file defines 'package bridge' inside the 'package stack' folder, crashing the compiler.
         find vendor/gvisor.dev/gvisor/pkg/tcpip/stack -name "bridge_test.go" -delete || true
