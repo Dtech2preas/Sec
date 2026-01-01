@@ -59,6 +59,8 @@ jobs:
         MOBILE_DIR=$(go list -mod=readonly -m -f '{{.Dir}}' golang.org/x/mobile)
         mkdir -p vendor/golang.org/x/mobile/bind
         cp -r "$MOBILE_DIR/bind/java" vendor/golang.org/x/mobile/bind/
+        # Create a dummy Go file to satisfy gomobile's package check in vendor mode
+        echo "package java" > vendor/golang.org/x/mobile/bind/java/dummy.go
 
         # 5. CRITICAL FIX: Delete the conflicting test file from gVisor
         # This file defines 'package bridge' inside the 'package stack' folder, crashing the compiler.
