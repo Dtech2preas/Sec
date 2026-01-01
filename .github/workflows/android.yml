@@ -40,7 +40,21 @@ jobs:
       run: |
         export PATH=$PATH:$(go env GOPATH)/bin
         cd app/src/main/go
+        
+        # 1. Clean up modules
         go mod tidy
+        
+        # 2. FIX: Install the missing Mobile Bind dependency
+        go get golang.org/x/mobile/bind
+        
+        # 3. FIX: Force update gvisor to fix the 'undefined: goready' error
+        go get -u gvisor.dev/gvisor@latest
+        
+        # 4. Update all other dependencies to match
+        go get -u ./...
+        go mod tidy
+        
+        # 5. Compile
         mkdir -p ../../../libs
         gomobile bind -target=android -androidapi 21 -o ../../../libs/hysteria.aar .
 
