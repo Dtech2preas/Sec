@@ -56,7 +56,7 @@ jobs:
 
         # 4.5. Fix Gomobile missing Java files in vendor
         # go mod vendor excludes non-Go files, but gomobile bind needs them.
-        MOBILE_DIR=$(go list -m -f '{{.Dir}}' golang.org/x/mobile)
+        MOBILE_DIR=$(go list -mod=readonly -m -f '{{.Dir}}' golang.org/x/mobile)
         mkdir -p vendor/golang.org/x/mobile/bind
         cp -r "$MOBILE_DIR/bind/java" vendor/golang.org/x/mobile/bind/
 
