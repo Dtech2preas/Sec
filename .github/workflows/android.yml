@@ -60,7 +60,8 @@ jobs:
 
         # 6. Compile using the vendor directory (-mod=vendor)
         mkdir -p ../../../libs
-        gomobile bind -target=android -androidapi 21 -mod=vendor -o ../../../libs/hysteria.aar .
+        export GOFLAGS="-mod=vendor"
+        gomobile bind -target=android -androidapi 21 -o ../../../libs/hysteria.aar .
 
     - name: Grant execute permission for gradlew
       run: chmod +x gradlew
