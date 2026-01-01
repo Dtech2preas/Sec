@@ -40,23 +40,27 @@ jobs:
       run: |
         export PATH=$PATH:$(go env GOPATH)/bin
         cd app/src/main/go
-        
-        # 1. Clean up modules
+
+        # 1. Tidy modules
         go mod tidy
-        
-        # 2. FIX: Install the missing Mobile Bind dependency
+
+        # 2. Install Mobile Bind (Required for Gomobile)
         go get golang.org/x/mobile/bind
-        
-        # 3. FIX: Force update gvisor to fix the 'undefined: goready' error
-        go get -u gvisor.dev/gvisor@latest
-        
-        # 4. Update all other dependencies to match
-        go get -u ./...
+
+        # 3. Update tun2socks to latest stable (Fixes 'goready' error)
+        go get github.com/xjasonlyu/tun2socks/v2@latest
         go mod tidy
-        
-        # 5. Compile
+
+        # 4. Vendor the dependencies so we can modify them
+        go mod vendor
+
+        # 5. CRITICAL FIX: Delete the conflicting test file from gVisor
+        # This file defines 'package bridge' inside the 'package stack' folder, crashing the compiler.
+        find vendor/gvisor.dev/gvisor/pkg/tcpip/stack -name "bridge_test.go" -delete || true
+
+        # 6. Compile using the vendor directory (-mod=vendor)
         mkdir -p ../../../libs
-        gomobile bind -target=android -androidapi 21 -o ../../../libs/hysteria.aar .
+        gomobile bind -target=android -androidapi 21 -mod=vendor -o ../../../libs/hysteria.aar .
 
     - name: Grant execute permission for gradlew
       run: chmod +x gradlew
