@@ -96,7 +96,7 @@ class DTechVpnService : VpnService() {
                 // FIX: Run in background thread to prevent crash
                 Thread {
                     try {
-                        Hysteria.start(serverStr, auth, "")
+                        Hysteria.start(vpnInterface!!.fd, serverStr, auth, "")
                         broadcastLog("Hysteria Core Connected Successfully!")
                     } catch (e: Exception) {
                         Log.e("DTechVPN", "Native Error", e)
