@@ -41,29 +41,24 @@ jobs:
         export PATH=$PATH:$(go env GOPATH)/bin
         cd app/src/main/go
 
-        # 1. Standard dependency setup (No Vendor)
+        # 1. Setup Dependencies
         go mod tidy
         go get golang.org/x/mobile/bind
-
-        # 2. Update to latest tun2socks (Fixes goready error)
         go get github.com/xjasonlyu/tun2socks/v2@latest
+        
+        # 2. FIX: Explicitly download gVisor so 'go list' can find it
+        go get gvisor.dev/gvisor@latest
         go mod tidy
 
-        # 3. CRITICAL FIX: Patch the Module Cache directly
-        # We find the gvisor directory in the cache, make it writable, and delete the bad file.
+        # 3. Patch the Module Cache (Delete conflicting test file)
         GVISOR_DIR=$(go list -m -f '{{.Dir}}' gvisor.dev/gvisor)
-
-        # If gvisor is missing for some reason, download it first
-        if [ -z "$GVISOR_DIR" ]; then
-            go get gvisor.dev/gvisor@latest
-            GVISOR_DIR=$(go list -m -f '{{.Dir}}' gvisor.dev/gvisor)
-        fi
-
         echo "Patching gVisor at: $GVISOR_DIR"
+        
+        # Make writable and delete the bad file
         chmod -R +w "$GVISOR_DIR"
         find "$GVISOR_DIR/pkg/tcpip/stack" -name "bridge_test.go" -delete || true
 
-        # 4. Compile (Standard mode)
+        # 4. Compile
         mkdir -p ../../../libs
         gomobile bind -target=android -androidapi 21 -o ../../../libs/hysteria.aar .
 
