@@ -8,6 +8,7 @@ import android.content.Intent
 import android.net.VpnService
 import android.os.Build
 import android.os.ParcelFileDescriptor
+import android.util.Log
 import androidx.core.app.NotificationCompat
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -92,7 +93,17 @@ class DTechVpnService : VpnService() {
 
                 broadcastLog("Calling Hysteria Native Core...")
 
-                Hysteria.start(serverStr, auth, "")
+                // FIX: Run in background thread to prevent crash
+                Thread {
+                    try {
+                        Hysteria.start(serverStr, auth, "")
+                        broadcastLog("Hysteria Core Connected Successfully!")
+                    } catch (e: Exception) {
+                        Log.e("DTechVPN", "Native Error", e)
+                        broadcastLog("Error: " + e.message)
+                        stopVpn() // Stop VPN if connection fails
+                    }
+                }.start()
 
             } catch (e: Exception) {
                 broadcastLog("Error: ${e.message}")
