@@ -41,36 +41,30 @@ jobs:
         export PATH=$PATH:$(go env GOPATH)/bin
         cd app/src/main/go
 
-        # 1. Tidy modules
+        # 1. Standard dependency setup (No Vendor)
         go mod tidy
-
-        # 2. Install Mobile Bind (Required for Gomobile)
         go get golang.org/x/mobile/bind
 
-        # 3. Update tun2socks to latest stable (Fixes 'goready' error)
+        # 2. Update to latest tun2socks (Fixes goready error)
         go get github.com/xjasonlyu/tun2socks/v2@latest
         go mod tidy
 
-        # 4. Vendor the dependencies so we can modify them
-        go mod vendor
+        # 3. CRITICAL FIX: Patch the Module Cache directly
+        # We find the gvisor directory in the cache, make it writable, and delete the bad file.
+        GVISOR_DIR=$(go list -m -f '{{.Dir}}' gvisor.dev/gvisor)
 
-        # 4.5. Fix Gomobile missing Java files in vendor
-        # go mod vendor excludes non-Go files, but gomobile bind needs them.
-        MOBILE_DIR=$(go list -mod=readonly -m -f '{{.Dir}}' golang.org/x/mobile)
-        mkdir -p vendor/golang.org/x/mobile/bind
-        cp -r "$MOBILE_DIR/bind/java" vendor/golang.org/x/mobile/bind/
-        # Make the directory writable because it was copied from the read-only module cache
-        chmod -R +w vendor/golang.org/x/mobile/bind/java
-        # Create a dummy Go file to satisfy gomobile's package check in vendor mode
-        echo "package java" > vendor/golang.org/x/mobile/bind/java/dummy.go
+        # If gvisor is missing for some reason, download it first
+        if [ -z "$GVISOR_DIR" ]; then
+            go get gvisor.dev/gvisor@latest
+            GVISOR_DIR=$(go list -m -f '{{.Dir}}' gvisor.dev/gvisor)
+        fi
 
-        # 5. CRITICAL FIX: Delete the conflicting test file from gVisor
-        # This file defines 'package bridge' inside the 'package stack' folder, crashing the compiler.
-        find vendor/gvisor.dev/gvisor/pkg/tcpip/stack -name "bridge_test.go" -delete || true
+        echo "Patching gVisor at: $GVISOR_DIR"
+        chmod -R +w "$GVISOR_DIR"
+        find "$GVISOR_DIR/pkg/tcpip/stack" -name "bridge_test.go" -delete || true
 
-        # 6. Compile using the vendor directory (-mod=vendor)
+        # 4. Compile (Standard mode)
         mkdir -p ../../../libs
-        export GOFLAGS="-mod=vendor"
         gomobile bind -target=android -androidapi 21 -o ../../../libs/hysteria.aar .
 
     - name: Grant execute permission for gradlew
