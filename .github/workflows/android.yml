@@ -46,9 +46,9 @@ jobs:
         go get golang.org/x/mobile/bind
         go get github.com/xjasonlyu/tun2socks/v2@latest
         
-        # 2. FIX: Explicitly download gVisor so 'go list' can find it
+        # 2. FIX: Download gVisor but DO NOT run 'go mod tidy' after.
+        # This keeps the library present so we can find and patch it.
         go get gvisor.dev/gvisor@latest
-        go mod tidy
 
         # 3. Patch the Module Cache (Delete conflicting test file)
         GVISOR_DIR=$(go list -m -f '{{.Dir}}' gvisor.dev/gvisor)
