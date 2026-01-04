@@ -64,7 +64,6 @@ class DTechVpnService : VpnService() {
             try {
                 // 1. Establish VPN Interface
                 establishVpnInterface()
-                val fd = vpnInterface?.fd ?: throw Exception("Failed to open VPN Interface")
 
                 // 2. Construct Server String
                 // Format: host:port (or range)
@@ -93,7 +92,7 @@ class DTechVpnService : VpnService() {
 
                 broadcastLog("Calling Hysteria Native Core...")
 
-                Hysteria.start(fd, serverStr, auth, "")
+                Hysteria.start(serverStr, auth, "")
 
             } catch (e: Exception) {
                 broadcastLog("Error: ${e.message}")
