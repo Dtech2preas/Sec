@@ -24,8 +24,8 @@ var hClient client.Client
 var socksListener net.Listener
 
 // 2. Start Function
-// Now accepts fd (File Descriptor)
-func Start(fd int, serverStr string, authStr string, obfsStr string) (err error) {
+// Changed fd to int64 to match Java long explicitly
+func Start(fd int64, serverStr string, authStr string, obfsStr string) (err error) {
 	// Panic Recovery for the main Start function
 	defer func() {
 		if r := recover(); r != nil {
@@ -48,6 +48,7 @@ func Start(fd int, serverStr string, authStr string, obfsStr string) (err error)
 	}
 
 	// Initialize Hysteria Client
+	// This might panic if config is invalid, so we are in a recover block.
 	c, _, err := client.NewClient(config)
 	if err != nil {
 		return err
@@ -58,8 +59,7 @@ func Start(fd int, serverStr string, authStr string, obfsStr string) (err error)
 	go func() {
 		defer func() {
 			if r := recover(); r != nil {
-				// Log panic? We can't easily log to Android here without a callback
-				// but at least we prevent the crash if it's in this goroutine
+				// Log panic?
 			}
 		}()
 		startSocksBridge(c)
@@ -205,6 +205,14 @@ func handleSocks5(conn net.Conn, hyClient client.Client) {
 	conn.Write([]byte{0x05, 0x00, 0x00, 0x01, 0, 0, 0, 0, 0, 0})
 
 	// 4. Pipe Data
-	go io.Copy(conn, destConn)
+	// FIX: Add recover to this goroutine
+	go func() {
+		defer func() {
+			if r := recover(); r != nil {
+				// Prevent crash
+			}
+		}()
+		io.Copy(conn, destConn)
+	}()
 	io.Copy(destConn, conn)
 }
