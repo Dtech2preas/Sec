@@ -73,33 +73,23 @@ class DTechVpnService : VpnService() {
                 broadcastLog("Connecting to $serverStr...")
 
                 // 3. Start Hysteria Client via Go Bridge
-                // We use reflection or assume the library class "hysteria.Hysteria" exists.
-                // Since the AAR is not here yet, this code would fail to compile if I referenced the class directly
-                // without the library.
-                // However, the user asked me to GENERATE the class.
-                // So I will write the code as if the library exists.
-
-                // Hysteria.start(fd, serverStr, auth, "")
-                // Using reflection to avoid compile errors in this environment if possible,
-                // OR just write the code and expect the user to provide the lib.
-
-                // For the "Hard Reset" plan, I should write the correct code.
-                // I will comment it out or wrap it in a try-catch with reflection if I want to be safe,
-                // but standard practice is to write the code.
-
-                // Note: Gomobile generated classes usually have a wrapper.
-                // Let's assume the package is 'hysteria' and class is 'Mobile'.
-                // Mobile.start(fd, serverStr, auth, "")
-
                 broadcastLog("Calling Hysteria Native Core...")
 
                 // FIX: Run in background thread to prevent crash
                 Thread {
                     try {
                         // Fix: Cast Int to Long for gomobile compatibility
+                        // Also, we use catch Throwable to catch UnsatisfiedLinkError
+                        if (vpnInterface == null) {
+                            throw Exception("VPN Interface is null")
+                        }
+
+                        // Debug log to confirm FD
+                        Log.d("DTechVPN", "FD Long: ${vpnInterface!!.fd.toLong()}")
+
                         Hysteria.start(vpnInterface!!.fd.toLong(), serverStr, auth, "")
                         broadcastLog("Hysteria Core Connected Successfully!")
-                    } catch (e: Exception) {
+                    } catch (e: Throwable) {
                         Log.e("DTechVPN", "Native Error", e)
                         broadcastLog("Error: " + e.message)
                         stopVpn() // Stop VPN if connection fails
@@ -146,7 +136,10 @@ class DTechVpnService : VpnService() {
             Hysteria.stop()
         } catch (e: Exception) {}
 
-        vpnInterface?.close()
+        try {
+            vpnInterface?.close()
+        } catch (e: Exception) {}
+
         vpnInterface = null
         stopForeground(true)
         stopSelf()
