@@ -25,7 +25,14 @@ var socksListener net.Listener
 
 // 2. Start Function
 // Now accepts fd (File Descriptor)
-func Start(fd int, serverStr string, authStr string, obfsStr string) error {
+func Start(fd int, serverStr string, authStr string, obfsStr string) (err error) {
+	// Panic Recovery
+	defer func() {
+		if r := recover(); r != nil {
+			err = fmt.Errorf("panic in Hysteria Core: %v", r)
+		}
+	}()
+
 	serverAddr := &HyAddr{str: serverStr}
 
 	// FIX: Use the specific client.TLSConfig struct (not crypto/tls)
@@ -61,7 +68,7 @@ func Start(fd int, serverStr string, authStr string, obfsStr string) error {
 		LogLevel: "info",
 	}
 	engine.Insert(key)
-	engine.Start()
+	go engine.Start()
 
 	return nil
 }
