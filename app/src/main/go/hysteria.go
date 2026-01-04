@@ -26,7 +26,7 @@ var socksListener net.Listener
 // 2. Start Function
 // Now accepts fd (File Descriptor)
 func Start(fd int, serverStr string, authStr string, obfsStr string) (err error) {
-	// Panic Recovery
+	// Panic Recovery for the main Start function
 	defer func() {
 		if r := recover(); r != nil {
 			err = fmt.Errorf("panic in Hysteria Core: %v", r)
@@ -54,8 +54,16 @@ func Start(fd int, serverStr string, authStr string, obfsStr string) (err error)
 	}
 	hClient = c
 
-	// Start Local SOCKS5 Bridge
-	go startSocksBridge(c)
+	// Start Local SOCKS5 Bridge in a safe goroutine
+	go func() {
+		defer func() {
+			if r := recover(); r != nil {
+				// Log panic? We can't easily log to Android here without a callback
+				// but at least we prevent the crash if it's in this goroutine
+			}
+		}()
+		startSocksBridge(c)
+	}()
 
 	// Wait a bit for SOCKS5 server to be ready
 	time.Sleep(100 * time.Millisecond)
@@ -68,7 +76,16 @@ func Start(fd int, serverStr string, authStr string, obfsStr string) (err error)
 		LogLevel: "info",
 	}
 	engine.Insert(key)
-	go engine.Start()
+
+	// Start Engine in a safe goroutine
+	go func() {
+		defer func() {
+			if r := recover(); r != nil {
+				// Prevent crash
+			}
+		}()
+		engine.Start()
+	}()
 
 	return nil
 }
@@ -109,7 +126,12 @@ func startSocksBridge(hyClient client.Client) {
 }
 
 func handleSocks5(conn net.Conn, hyClient client.Client) {
-	defer conn.Close()
+	defer func() {
+		if r := recover(); r != nil {
+			// Recover from panic in connection handler
+		}
+		conn.Close()
+	}()
 
 	// 1. Version and Auth Negotiation
 	buf := make([]byte, 256)
