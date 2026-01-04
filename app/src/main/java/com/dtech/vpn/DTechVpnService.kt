@@ -120,6 +120,15 @@ class DTechVpnService : VpnService() {
         builder.addRoute("0.0.0.0", 0)     // Redirect all traffic
         builder.setMtu(1280)               // **CRITICAL**: MTU 1280 as requested
 
+        // Fix: Exclude own package to prevent routing loop
+        try {
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
+                builder.addDisallowedApplication(packageName)
+            }
+        } catch (e: Exception) {
+            Log.e("DTechVPN", "Failed to exclude app", e)
+        }
+
         // Add DNS
         builder.addDnsServer("8.8.8.8")
         builder.addDnsServer("1.1.1.1")
