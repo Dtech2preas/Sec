@@ -205,6 +205,13 @@ func handleSocks5(conn net.Conn, hyClient client.Client) {
 	conn.Write([]byte{0x05, 0x00, 0x00, 0x01, 0, 0, 0, 0, 0, 0})
 
 	// 4. Pipe Data
-	go io.Copy(conn, destConn)
+	go func() {
+		defer func() {
+			if r := recover(); r != nil {
+				// Prevent crash
+			}
+		}()
+		io.Copy(conn, destConn)
+	}()
 	io.Copy(destConn, conn)
 }
